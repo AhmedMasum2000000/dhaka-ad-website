@@ -1,7 +1,7 @@
 # Dhaka AD
 
-Public static website: https://AhmedMasum2000000.github.io/dhaka-ad-website/
+Public static website: https://ahmedmasum2000000.github.io/dhaka-ad-website/
 
-95 pages covering advertising services, location directories, placement references and FAQs.
+Advertising services, outdoor formats, location directories, campaign planning and FAQs. Includes optimised photographs from the supplied service and image collections.
 
-Published business details and photographs are used as references; current inventory and quotation terms are confirmed directly with Dhaka AD.
+Current placement details and campaign arrangements are confirmed directly with Dhaka AD.
