@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://AhmedMasum2000000.github.io/dhaka-ad-website/sitemap.xml
