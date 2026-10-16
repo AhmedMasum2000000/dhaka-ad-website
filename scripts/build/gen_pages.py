@@ -80,6 +80,7 @@ def build():
     build_guides_hub()
     build_industries()
     build_404()
+    build_thank_you()
 
 
 def build_404():
@@ -96,3 +97,18 @@ def build_404():
             + footer() + call_rail() + "</body></html>")
     with open(os.path.join(ROOT, "404.html"), "w", encoding="utf-8") as f:
         f.write(html)
+
+
+def build_thank_you():
+    """Where contact.php sends people after a callback request (noindex)."""
+    from common import call_button, footer, head, header, call_rail, PHONE_SHOW, url
+    path = "/thank-you/"
+    links = links_list([("/static-billboards/", "Browse billboard locations"), ("/guides/billboard-advertising-cost-bangladesh/", "What affects the cost"), ("/guides/led-billboard-artwork-specifications/", "Get your artwork ready")])
+    html = (head("Thank you | Dhaka AD", "Your callback request reached Dhaka AD. A planner will call you back shortly.", path, "/assets/field/night-street-led-dhaka-1600.webp", [])
+            .replace('content="index,follow,max-image-preview:large"', 'content="noindex,follow"')
+            + '<body class="content-page">' + header()
+            + '<main id="main"><section class="page-hero section-pad"><p class="eyebrow">REQUEST RECEIVED</p><h1>Thank you. Your callback is in the queue.</h1>'
+            + f'<div class="page-intro"><div class="intro-copy"><p><strong>A planner will call you back, usually the same working day.</strong> In a hurry? Call now and we can start straight away.</p>{links}</div>'
+            + f'<div>{call_button("Call " + PHONE_SHOW)}<a class="text-link" href="{url("/")}">Back to the homepage <span aria-hidden="true">↗</span></a></div></div></section></main>'
+            + footer() + call_rail() + "</body></html>")
+    write(path, html)

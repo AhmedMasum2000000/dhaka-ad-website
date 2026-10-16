@@ -124,4 +124,7 @@
       rev.forEach(r => io.observe(r));
     }
   }
+
+  // Callback form: timestamp lets contact.php drop instant bot posts.
+  document.querySelectorAll('.callback-form input[name="ts"]').forEach(i => { i.value = Math.floor(Date.now() / 1000); });
 })();

@@ -171,3 +171,7 @@
 @media(max-width:760px){.home .hero-question{top:15%}.home .hero-question h1{font-size:clamp(20px,6.2vw,34px)}.home .portal-title{top:56%}}
 .stat strong{font-size:clamp(30px,3vw,50px)}
 @media(max-width:760px){.home .portal-top>span:first-child{visibility:hidden}}
+/* callback form (posts to /contact.php on dhakaad.com) */
+.enquiry-form select{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:16px Sora,sans-serif;padding:15px;width:100%;border-radius:0;appearance:auto}
+.enquiry-form select:focus{outline:1px solid var(--brand-red)}
+.enquiry-form .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}

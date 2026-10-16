@@ -15,31 +15,7 @@ SKIP_DIRS = {".git", ".github", "scripts", "_site", "node_modules"}
 SKIP_FILES = {"README.md", ".gitignore", ".nojekyll"}
 TEXT = (".html", ".css", ".js", ".xml", ".txt", ".json")
 
-HTACCESS = """# dhakaad.com — static site served by Hostinger (LiteSpeed/Apache)
-Options -Indexes
-DirectoryIndex index.html
-ErrorDocument 404 /404.html
-
-# Never serve repository internals when deployed with Git.
-RedirectMatch 404 /\\.git
-
-<IfModule mod_headers.c>
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  Header always set X-Frame-Options "SAMEORIGIN"
-</IfModule>
-
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType image/webp "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType font/ttf "access plus 1 year"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType text/html "access plus 1 hour"
-</IfModule>
-"""
+HOSTINGER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hostinger")
 
 
 def main(out):
@@ -62,8 +38,12 @@ def main(out):
                     fh.write(text.replace("/dhaka-ad-website/", "/"))
             else:
                 shutil.copy2(src, dst)
-    with open(os.path.join(out, ".htaccess"), "w") as fh:
-        fh.write(HTACCESS)
+    # Server rules (legacy WordPress 301s, PHP lockdown, https), the callback mailer,
+    # the staging robots file and the old /img/ URLs that redirects and shares point at.
+    shutil.copy2(os.path.join(HOSTINGER, "htaccess"), os.path.join(out, ".htaccess"))
+    for f in ("contact.php", "robots-staging.txt"):
+        shutil.copy2(os.path.join(HOSTINGER, f), os.path.join(out, f))
+    shutil.copytree(os.path.join(HOSTINGER, "img"), os.path.join(out, "img"))
     # Files the previous dhakaad.com exposed, so old links and shares keep working.
     shutil.copy2(os.path.join(ROOT, "assets", "dhaka-ad-favicon-red.png"), os.path.join(out, "favicon.png"))
     shutil.copy2(os.path.join(ROOT, "assets", "apple-touch-icon.png"), os.path.join(out, "apple-touch-icon.png"))
