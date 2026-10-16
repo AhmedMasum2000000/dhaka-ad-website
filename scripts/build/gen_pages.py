@@ -79,3 +79,20 @@ def build():
     build_glossary()
     build_guides_hub()
     build_industries()
+    build_404()
+
+
+def build_404():
+    """Friendly not-found page: keeps lost visitors one tap from the phone."""
+    from common import ROOT, call_button, footer, head, header, call_rail, PHONE_SHOW, url
+    import os
+    links = links_list([("/static-billboards/", "Billboard locations in Dhaka"), ("/locations/", "LED screens by city"), ("/services/", "Every service"), ("/guides/", "Guides & costs"), ("/advertising-faq/", "Questions answered")])
+    html = (head("Page not found | Dhaka AD", "This page has moved. Find billboards, LED screens and services, or call Dhaka AD.", "/404.html", "/assets/field/night-street-led-dhaka-1600.webp", [])
+            .replace('content="index,follow,max-image-preview:large"', 'content="noindex,follow"')
+            + '<body class="content-page">' + header()
+            + f'<main id="main"><section class="page-hero section-pad"><p class="eyebrow">404 / WRONG TURN</p><h1>This page took a different road.</h1>'
+            + f'<div class="page-intro"><div class="intro-copy"><p><strong>The billboard you were looking for is still out there.</strong> Pick a starting point below, or call and tell us what you need.</p>{links}</div>'
+            + f'<div>{call_button("Call " + PHONE_SHOW)}<a class="text-link" href="{url("/")}">Back to the homepage <span aria-hidden="true">↗</span></a></div></div></section></main>'
+            + footer() + call_rail() + "</body></html>")
+    with open(os.path.join(ROOT, "404.html"), "w", encoding="utf-8") as f:
+        f.write(html)

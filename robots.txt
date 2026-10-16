@@ -11,4 +11,4 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-Sitemap: https://ahmedmasum2000000.github.io/dhaka-ad-website/sitemap.xml
+Sitemap: https://dhakaad.com/sitemap.xml

@@ -7,7 +7,7 @@ import json
 import os
 
 BASE = "/dhaka-ad-website"
-SITE = "https://ahmedmasum2000000.github.io/dhaka-ad-website"
+SITE = "https://dhakaad.com"  # canonical domain; the GitHub Pages copy points here
 PHONE = "+8801840860284"
 PHONE_SHOW = "01840 860 284"
 PHONE_INTL = "+880 1840 860 284"
@@ -76,7 +76,6 @@ ORG = {
     "areaServed": [{"@type": "City", "name": c} for c in ["Dhaka", "Chattogram", "Sylhet", "Cox's Bazar", "Rajshahi", "Cumilla", "Rangpur", "Bogura", "Narayanganj", "Feni"]] + [{"@type": "Country", "name": "Bangladesh"}],
     "contactPoint": {"@type": "ContactPoint", "telephone": PHONE_INTL, "contactType": "sales", "areaServed": "BD", "availableLanguage": ["en", "bn"]},
     "knowsAbout": ["Outdoor advertising", "LED billboard advertising", "Billboard advertising", "Metro rail advertising", "Airport advertising", "Tri-vision billboards", "Neon signs", "Brand activation", "Event management", "LED screen rental", "Newspaper insert advertising", "Large-format printing", "Outdoor LED display installation", "Digital marketing"],
-    "sameAs": ["https://dhakaad.com/"],
 }
 
 NAV = [("/outdoor-advertising/", "Formats"), ("/static-billboards/", "Billboards"), ("/locations/", "LED screens"), ("/event-management/", "Events"), ("/guides/", "Guides")]

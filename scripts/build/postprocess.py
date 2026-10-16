@@ -29,6 +29,7 @@ EXTRA_LINKS = {
     "mid-island-branding": ("Median runs you can book", [("/static-billboards/mirpur/mirpur-10-to-agargaon-mid-island/", "Mirpur-10 to Agargaon (50 panels)"), ("/static-billboards/malibagh-khilgaon-banasree/khilgaon-taltola-mid-island/", "Khilgaon Taltola (50 panels)"), ("/light-box-advertising/", "Light box panels")]),
 }
 
+OLD_SITE = "https://ahmedmasum2000000.github.io/dhaka-ad-website"
 HEADER_RE = re.compile(r'<a class="skip".*?<nav id="mobile-menu".*?</nav>', re.S)
 FOOTER_RE = re.compile(r'<footer class="site-footer.*?</footer>', re.S)
 RAIL_RE = re.compile(r'<aside class="call-rail".*?</aside>', re.S)
@@ -75,6 +76,7 @@ def inject_section(s, key, title, items):
 def upgrade(p):
     with open(p, encoding="utf-8") as f:
         s = f.read()
+    s = s.replace(OLD_SITE, SITE)
     if 'name="robots" content="noindex' in s:
         return s, False
     s = HEADER_RE.sub(lambda _m: header(), s, count=1)
