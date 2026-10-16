@@ -12,6 +12,7 @@
   const tone = document.querySelector('.photo-tone');
   const intro = document.querySelector('.portal-intro');
   const scene = document.querySelector('.portal-scene');
+  if (!portal || !stage || !scene) return;
   const sceneLink = scene.querySelector('a');
   const travellerA = document.querySelector('.traveller-amber');
   const travellerT = document.querySelector('.traveller-teal');
@@ -51,9 +52,12 @@
     travellerA.style.transform = `translate(${-eased * stage.clientWidth * .43}px,${-eased * stage.clientHeight * .29}px)`;
     travellerT.style.transform = `translate(${eased * stage.clientWidth * .43}px,${eased * stage.clientHeight * .29}px)`;
     progressBar.style.width = `${p * 100}%`;
-    const artRect = document.querySelector('.statement-art').getBoundingClientRect();
-    const artProgress = clamp((innerHeight - artRect.top) / (innerHeight + artRect.height));
-    orbit.style.transform = `translateY(${-30 * artProgress}px) rotate(${-12 + artProgress * 18}deg)`;
+    const art = document.querySelector('.statement-art');
+    if (art && orbit) {
+      const artRect = art.getBoundingClientRect();
+      const artProgress = clamp((innerHeight - artRect.top) / (innerHeight + artRect.height));
+      orbit.style.transform = `translateY(${-30 * artProgress}px) rotate(${-12 + artProgress * 18}deg)`;
+    }
   }
   function schedulePaint() { if (!scheduled) { scheduled = true; requestAnimationFrame(paint); } }
   function setMotion() {
@@ -72,9 +76,10 @@
   setMotion();
 
   const timeLabel = document.querySelector('.local-time');
-  function tick() { timeLabel.textContent = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); }
+  function tick() { if (!timeLabel) return; timeLabel.textContent = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); }
   tick(); setInterval(tick, 60000);
-  document.querySelector('#year').textContent = new Date().getFullYear();
+  const year = document.querySelector('#year');
+  if (year) year.textContent = new Date().getFullYear();
 
   const menuButton = document.querySelector('.menu-toggle');
   const menu = document.querySelector('#mobile-menu');
@@ -86,6 +91,7 @@
   desktopQuery.addEventListener('change', e => { if (e.matches) closeMenu(); });
 
   const deck = document.querySelector('.deck');
+  if (!deck) return;
   const cards = [...deck.querySelectorAll('.location-card')];
   const dots = [...document.querySelectorAll('.deck-dots button')];
   let current = 0;
@@ -101,10 +107,10 @@
       card.setAttribute('aria-hidden', String(depth !== 0));
     });
     dots.forEach((dot, i) => dot.setAttribute('aria-pressed', String(i === current)));
-    document.querySelector('#deck-count').textContent = `${String(current + 1).padStart(2, '0')} / 05`;
+    document.querySelector('#deck-count').textContent = `${String(current + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`;
     document.querySelector('#deck-name').textContent = cards[current].dataset.name;
     document.querySelector('#deck-category').textContent = cards[current].dataset.category;
-    document.querySelector('#deck-status').textContent = `Location ${current + 1} of 5: ${cards[current].dataset.name}`;
+    document.querySelector('#deck-status').textContent = `Location ${current + 1} of ${cards.length}: ${cards[current].dataset.name}`;
   }
   function selectCard(next, direction = 1) {
     if (busy || next === current) { restack(); return; }
