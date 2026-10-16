@@ -1,6 +1,6 @@
 """Voice-over for the reel: Piper neural TTS, one clip per line, placed on the timeline in reel.html.
 
-Usage: python promo/vo.py <voice.onnx> <out.wav> [length_scale]
+Usage: [VO_LINES=lines.json VO_DUR=seconds] python promo/vo.py <voice.onnx> <out.wav> [length_scale]
 Each line is sped up (max 1.3x) only if it would overrun the start of the next line.
 """
 import array, subprocess, sys, tempfile, wave, os
@@ -31,6 +31,11 @@ LINES = [
 ]
 
 def main(model, out, scale=0.95):
+    global LINES, DUR
+    if os.environ.get("VO_LINES"):  # another reel: [[start, text], ...] in a JSON file
+        import json
+        LINES = [tuple(x) for x in json.load(open(os.environ["VO_LINES"]))]
+        DUR = float(os.environ.get("VO_DUR", DUR))
     voice = PiperVoice.load(model)
     track = array.array("h", [0] * int(DUR * SR))
     tmp = tempfile.mkdtemp()

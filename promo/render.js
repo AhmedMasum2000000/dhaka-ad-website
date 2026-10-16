@@ -1,5 +1,5 @@
 // Render reel.html frame by frame and encode an Instagram Reel (1080x1920, 30 fps, H.264).
-// Usage: node promo/render.js [out.mp4] [--preview t1,t2,...]
+// Usage: [REEL_HTML=page.html] [PREVIEW_DIR=dir] node promo/render.js [out.mp4] [--preview t1,t2,...]
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -10,10 +10,11 @@ const path = require('path');
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto('file://' + path.join(__dirname, 'reel.html'));
+  const html = process.env.REEL_HTML ? path.resolve(process.env.REEL_HTML) : path.join(__dirname, 'reel.html');
+  await p.goto('file://' + html);
   await p.evaluate(() => window.ready);
   if (prevIdx >= 0) {
-    for (const t of args[prevIdx + 1].split(',')) { await p.evaluate(t => seek(+t), t); await p.screenshot({ path: path.join(process.argv[1], '..', `preview-${t}.jpg`), type: 'jpeg', quality: 80 }); }
+    for (const t of args[prevIdx + 1].split(',')) { await p.evaluate(t => seek(+t), t); await p.screenshot({ path: path.join(process.env.PREVIEW_DIR || path.dirname(html), `preview-${t}.jpg`), type: 'jpeg', quality: 80 }); }
     console.log(JSON.stringify({ errs })); await b.close(); return;
   }
   const fps = 30, dur = await p.evaluate(() => window.DURATION), n = Math.round(dur * fps);
