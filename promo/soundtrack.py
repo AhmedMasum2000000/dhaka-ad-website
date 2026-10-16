@@ -1,7 +1,7 @@
 """Synthesize the reel's sound bed (no samples, no dependencies), timed to the cuts in reel.html."""
 import math, random, struct, sys, wave
 
-SR, DUR = 44100, 26.0
+SR, DUR = 44100, 28.0
 N = int(SR * DUR)
 L = [0.0] * N
 R = [0.0] * N
@@ -58,7 +58,7 @@ def pad_gain(t):
     if t < 8.55: return .26
     if t < 9.45: return .14
     if t < 21.5: return .3
-    return .3 * max(0, 1 - (t - 24.6) / 1.4) if t > 24.6 else .3
+    return .3 * max(0, 1 - (t - 26.6) / 1.4) if t > 26.6 else .3
 for i in range(N):
     t = i / SR
     g = pad_gain(t)
