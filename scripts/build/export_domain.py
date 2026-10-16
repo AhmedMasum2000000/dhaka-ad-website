@@ -11,7 +11,7 @@ import shutil
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SKIP_DIRS = {".git", ".github", "scripts", "_site", "node_modules"}
+SKIP_DIRS = {".git", ".github", "scripts", "_site", "node_modules", "promo"}
 SKIP_FILES = {"README.md", ".gitignore", ".nojekyll"}
 TEXT = (".html", ".css", ".js", ".xml", ".txt", ".json")
 
