@@ -1,0 +1,170 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Dhaka AD Reel</title>
+<style>
+@font-face{font-family:Syne;src:url('../assets/syne-800.ttf');font-weight:800}
+@font-face{font-family:Sora;src:url('../assets/sora-400.ttf');font-weight:400}
+@font-face{font-family:Sora;src:url('../assets/sora-600.ttf');font-weight:600}
+:root{--bg:#0a0c0e;--ink:#ede7dc;--red:#ff3131}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Sora,sans-serif}
+.scene{position:absolute;inset:0;display:none;overflow:hidden}
+.bg{position:absolute;inset:-12% ;background-size:cover;background-position:center;will-change:transform}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,14,.6) 0%,rgba(10,12,14,.5) 30%,rgba(10,12,14,.55) 60%,rgba(10,12,14,.85) 100%)}
+.shade.heavy{background:rgba(10,12,14,.62)}
+.block{position:absolute;left:90px;right:90px;top:50%;transform:translateY(-50%)}
+.line{display:block;width:max-content;font-family:Syne,sans-serif;font-weight:800;line-height:.98;letter-spacing:-.02em;text-transform:uppercase;white-space:nowrap;transform-origin:0 60%;opacity:0;text-shadow:0 6px 34px rgba(0,0,0,.5)}
+.red{color:var(--red)}
+.kicker{font-family:Sora;font-weight:600;font-size:34px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:40px;opacity:0}
+.sub{font-family:Sora;font-weight:400;font-size:44px;line-height:1.35;color:var(--ink);margin-top:34px;opacity:0}
+.count{position:absolute;right:90px;top:300px;font-family:Sora;font-weight:600;font-size:30px;letter-spacing:.2em;color:var(--ink);opacity:.85}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:20}
+#bar{position:absolute;left:0;top:0;height:10px;background:var(--red);z-index:30}
+#mark{position:absolute;left:90px;top:250px;font-family:Syne;font-weight:800;font-size:40px;letter-spacing:-.03em;z-index:25;opacity:0}
+#mark span,.dot{color:var(--red)}
+.logo{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center}
+.logo .l1,.logo .l2{display:block;font-family:Syne;font-weight:800;letter-spacing:-.03em;line-height:.95}
+.logo .l1{font-size:148px}
+.logo .l2{font-size:262px;color:var(--red)}
+.pill{display:inline-flex;align-items:center;gap:18px;background:var(--red);color:#fff;font-family:Sora;font-weight:600;font-size:50px;padding:30px 48px;border-radius:999px}
+.cta{position:absolute;left:90px;right:90px;top:430px;bottom:430px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.cta > *{opacity:0}
+.small{font-family:Sora;font-size:32px;line-height:1.4;color:var(--ink);opacity:.9}
+.url{font-family:Syne;font-weight:800;font-size:64px;letter-spacing:-.02em;margin-top:34px}
+.ring{position:absolute;border:6px solid var(--red);border-radius:50%;opacity:0}
+.wipe{position:absolute;inset:0;background:var(--red);transform-origin:0 50%}
+</style></head>
+<body><div id="stage"><div id="bar"></div><div id="mark">DHAKA AD<span>.</span></div><div class="flash" id="flash"></div></div>
+<script>
+const W = 1080, H = 1920, T = 28;
+const stage = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = p => 1 - Math.pow(1 - clamp(p), 3);
+const back = p => { p = clamp(p); const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const IMG = n => `img/${n}.jpg`;
+const scenes = [];
+
+function el(tag, cls, html, parent) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; (parent || stage).appendChild(e); return e; }
+
+// Fit each headline line to the text column width (max size given).
+function fit(line, max) {
+  line.style.fontSize = max + 'px';
+  const room = W - 180;
+  if (line.offsetWidth > room) line.style.fontSize = Math.floor(max * room / line.offsetWidth) + 'px';
+}
+
+// A scene: optional photo with slow push-in, headline lines that slam in at given times.
+function scene(s, e, o) {
+  const root = el('div', 'scene');
+  root.style.background = o.color || 'var(--bg)';
+  let bg = null;
+  if (o.img) { bg = el('div', 'bg', null, root); bg.style.backgroundImage = `url(${IMG(o.img)})`; el('div', 'shade' + (o.heavy ? ' heavy' : ''), null, root); }
+  const block = el('div', 'block', null, root);
+  if (o.top) block.style.top = o.top;
+  const kicker = o.kicker ? el('div', 'kicker', o.kicker, block) : null;
+  const lines = (o.lines || []).map(([txt, at, size, cls]) => { const l = el('span', 'line ' + (cls || ''), txt, block); l._at = at; l._size = size; return l; });
+  const sub = o.sub ? el('div', 'sub', o.sub[0], block) : null;
+  const count = o.count ? el('div', 'count', o.count, root) : null;
+  stage.insertBefore(root, document.getElementById('flash'));
+  const sc = { s, e, root, flash: o.flash, init() { lines.forEach(l => fit(l, l._size)); },
+    upd(t) {
+      const lt = t - s, d = e - s;
+      if (bg) { const z = 1 + 0.10 * (lt / d) + (o.punch ? 0.10 * (1 - ease(lt / 0.35)) : 0); bg.style.transform = `scale(${z}) translateX(${(o.pan || 0) * lt / d}px)`; }
+      if (kicker) { const p = ease((t - (o.kickerAt ?? s)) / 0.2); kicker.style.opacity = p; kicker.style.transform = `translateY(${(1 - p) * 20}px)`; }
+      lines.forEach(l => {
+        const p = (t - l._at) / 0.16;
+        l.style.opacity = clamp(p * 1.6);
+        const sc = p < 1 ? 1.35 - 0.35 * back(p) : 1;
+        const shake = p > 1 && p < 1.8 ? Math.sin(p * 40) * 6 * (1.8 - p) : 0;
+        l.style.transform = `translateX(${shake}px) scale(${sc})`;
+      });
+      if (sub) { const p = ease((t - o.sub[1]) / 0.25); sub.style.opacity = p; sub.style.transform = `translateY(${(1 - p) * 24}px)`; }
+      if (o.upd) o.upd(t, lt, root);
+    } };
+  scenes.push(sc); return sc;
+}
+
+// ---------- 1. HOOK: the pain, in under 4 seconds ----------
+scene(0, 1.45, { img: 'traffic-approach-led-tower', punch: 1, pan: -40, lines: [['Dhaka', .02, 210], ['is stuck', .28, 180], ['in traffic<span class="dot">.</span>', .54, 180]] });
+scene(1.45, 2.85, { img: 'gulshan-led-skyline', punch: 1, pan: 40, flash: '#fff', lines: [['And everyone', 1.47, 150], ['is looking', 1.72, 150], ['up<span class="dot">.</span>', 1.97, 330, 'red']] });
+scene(2.85, 4.3, { color: 'var(--bg)', flash: 'var(--red)', lines: [['At someone', 2.87, 150], ["else's", 3.12, 230], ['brand<span class="dot">.</span>', 3.37, 230, 'red']], sub: ['Not yours.', 3.75] });
+
+// ---------- 2. AGITATE: every moment is screen time ----------
+[['busy-junction-billboard', 'Every red light.'], ['roadside-led-flyover-junction', 'Every jam.'], ['expressway-billboard-close', 'Every flyover.'], ['airport-terminal-led-arrivals', 'Every arrival.']]
+  .forEach(([img, txt], i) => { const s = 4.3 + i * .75; scene(s, s + .75, { img, punch: 1, pan: i % 2 ? 30 : -30, flash: '#fff', count: `0${i + 1} / 04`, lines: [[txt, s + .03, 150]] }); });
+scene(7.3, 8.55, { color: 'var(--bg)', lines: [['…is a', 7.33, 150], ['captive', 7.55, 230], ['audience<span class="dot">.</span>', 7.8, 200, 'red']] });
+
+// ---------- 3. TURN: make it yours -> brand reveal ----------
+const turn = scene(8.55, 9.45, { color: 'var(--red)', lines: [['Make it', 8.57, 190], ['yours.', 8.8, 330]] });
+const reveal = scene(9.45, 11.1, { color: 'var(--bg)', flash: 'var(--red)' });
+(() => {
+  const logo = el('div', 'logo', '<span class="l1">DHAKA</span><span class="l2">AD<span style="color:var(--ink)">.</span></span>', reveal.root);
+  const tag = el('div', 'kicker', '360° outdoor advertising · Dhaka', reveal.root);
+  Object.assign(tag.style, { position: 'absolute', left: 0, right: 0, textAlign: 'center', top: '1330px', color: 'var(--ink)' });
+  const ring = el('div', 'ring', null, reveal.root);
+  const l1 = logo.querySelector('.l1'), l2 = logo.querySelector('.l2');
+  reveal.upd = (t) => {
+    const lt = t - 9.45;
+    const p1 = ease(lt / .3), p2 = back((lt - .18) / .3), p3 = ease((lt - .6) / .3);
+    l1.style.transform = `translateX(${(1 - p1) * -700}px)`; l1.style.opacity = p1;
+    l2.style.transform = `scale(${0.2 + 0.8 * clamp(p2, 0, 2)})`; l2.style.opacity = clamp((lt - .18) / .1);
+    tag.style.opacity = p3; tag.style.transform = `translateY(${(1 - p3) * 20}px)`;
+    const r = ease((lt - .3) / .9); const size = 300 + r * 1500;
+    Object.assign(ring.style, { width: size + 'px', height: size + 'px', left: (W - size) / 2 + 'px', top: (H - size) / 2 + 'px', opacity: (1 - r) * .8 });
+    logo.style.transform = `translateY(-50%) scale(${1 + 0.04 * lt})`;
+  };
+})();
+
+// ---------- 4. PROOF: the network in numbers ----------
+[['expressway-static-billboards', 44, '', 'billboard faces across Dhaka'], ['gulshan-circle-led-cluster', 56, '', 'LED screens'], ['night-street-led-dhaka', 10, '', 'cities, one plan'], ['metro-train-interior', 550, 'K', 'daily metro commuters (approx.)']]
+  .forEach(([img, n, suf, label], i) => {
+    const s = 11.1 + i * 1.25;
+    const sc = scene(s, s + 1.25, { img, heavy: 1, pan: i % 2 ? -30 : 30, flash: '#fff', top: '56%', kicker: 'The Dhaka AD network', kickerAt: s, lines: [[`<span class="num">${n}</span>${suf}`, s + .02, 380, 'red']], sub: [label, s + .2] });
+    sc.upd2 = sc.upd; const target = n;
+    sc.upd = t => { sc.upd2(t); const num = sc.root.querySelector('.num'); num.textContent = Math.round(target * ease((t - s) / .7)); };
+  });
+
+// ---------- 5. 360°: everything, one team ----------
+[['multi-format-building-advertising', 'Billboards'], ['tower-top-led-screen', 'LED screens'], ['metro-train-interior', 'Metro rail'], ['airport-terminal-led-arrivals', 'Airport'], ['expressway-billboard-close', 'Expressway'], ['concert-stage-crowd', 'Events'], ['opening-day-crowd', 'Store launches'], ['large-format-printing', 'Print']]
+  .forEach(([img, txt], i) => { const s = 16.1 + i * .45; scene(s, s + .45, { img, punch: 1, flash: i ? null : '#fff', kicker: '360° · all of it', kickerAt: 16.1, count: `0${i + 1} / 08`, lines: [[txt, s + .01, 170]] }); });
+scene(19.7, 21.5, { color: 'var(--bg)', flash: 'var(--red)', lines: [['One team.', 19.72, 175], ['One call.', 20.2, 175], ['Every format.', 20.68, 175, 'red']] });
+
+// ---------- 6. CALL TO ACTION ----------
+const cta = scene(21.5, T + .01, { img: 'police-plaza-led-night', heavy: 1 });
+(() => {
+  const box = el('div', 'cta', null, cta.root);
+  const a = el('div', 'kicker', 'Your brand. Their eyes.', box);
+  const b = el('div', 'line', 'Get a free<br>location<br>shortlist<span class="dot">.</span>', box); b.style.fontSize = '92px'; b.style.whiteSpace = 'normal'; b.style.width = 'auto';
+  const c = el('div', 'pill', 'Call 01840 860 284 <span>↗</span>', box); c.style.marginTop = '48px';
+  const d = el('div', 'url', 'dhakaad.com', box);
+  const f = el('div', 'small', 'Share this with a brand that deserves to be seen.', box); f.style.marginTop = '34px';
+  const items = [[a, 21.55], [b, 21.7], [c, 22.15], [d, 22.45], [f, 23.1]];
+  cta.upd2 = cta.upd;
+  cta.upd = t => {
+    cta.upd2(t);
+    items.forEach(([n, at]) => { const p = ease((t - at) / .3); n.style.opacity = p; n.style.transform = `translateY(${(1 - p) * 40}px)`; });
+    const pulse = t > 22.6 ? 1 + 0.035 * Math.sin((t - 22.6) * 7) : 1;
+    c.style.transform += ` scale(${pulse})`;
+  };
+})();
+
+// ---------- global layers ----------
+const bar = document.getElementById('bar'), mark = document.getElementById('mark'), flash = document.getElementById('flash');
+function seek(t) {
+  let active = null;
+  scenes.forEach(sc => { const on = t >= sc.s && t < sc.e; sc.root.style.display = on ? 'block' : 'none'; if (on) { sc.upd(t); active = sc; } });
+  bar.style.width = (W * t / T) + 'px';
+  mark.style.opacity = t > 11.1 && t < 21.5 ? .95 : 0;
+  // quick flash on hard cuts
+  const f = active && active.flash ? clamp(1 - (t - active.s) / .12) : 0;
+  flash.style.background = active && active.flash || 'transparent'; flash.style.opacity = f * .55;
+}
+window.seek = seek; window.DURATION = T;
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...new Set(scenes.flatMap(sc => [...sc.root.querySelectorAll('.bg')].map(b => b.style.backgroundImage.slice(5, -2))))]
+    .map(src => new Promise(r => { const i = new Image(); i.onload = i.onerror = r; i.src = src; })));
+  scenes.forEach(sc => { sc.root.style.display = 'block'; sc.init(); sc.root.style.display = 'none'; });
+  seek(0); return true;
+})();
+</script></body></html>

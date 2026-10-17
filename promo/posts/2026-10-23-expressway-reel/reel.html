@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Expressway reel: guess the road</title>
+<link rel="stylesheet" href="../reel-kit.css">
+<style>
+.opts{position:absolute;left:90px;right:90px;top:1060px;z-index:5}
+.q{font:800 64px Syne;letter-spacing:-.02em;text-transform:uppercase;margin-bottom:34px;opacity:0;text-shadow:0 4px 24px rgba(0,0,0,.6)}
+.opt{display:flex;align-items:center;gap:30px;background:rgba(10,12,14,.82);border:3px solid rgba(237,231,220,.25);border-radius:22px;padding:26px 32px;margin-bottom:22px;font:600 50px Sora;opacity:0}
+.opt b{display:inline-flex;align-items:center;justify-content:center;width:84px;height:84px;border-radius:50%;background:var(--red);color:#fff;font:800 48px Syne;flex:none}
+.opt.win{border-color:var(--red);background:rgba(255,49,49,.2)}
+.opt.lose{opacity:.35!important}
+</style></head>
+<body><div id="stage"><div id="bar"></div><div id="mark">DHAKA AD<span>.</span></div><div class="flash" id="flash"></div></div>
+<script>window.T = 24;</script>
+<script src="../reel-kit.js"></script>
+<script>
+const OPTIONS = ['Elevated Expressway', '300 Feet', 'Dhaka–Mawa–Bhanga'];
+function quiz(root, s, reveal) {
+  const box = el('div', 'opts', null, root);
+  const q = el('div', 'q', reveal ? 'The answer<span class="red">:</span>' : 'Which road is this<span class="red">?</span>', box);
+  const opts = OPTIONS.map((o, i) => el('div', 'opt', `<b>${'ABC'[i]}</b>${o}`, box));
+  return t => {
+    rise(q, t, s + .1, .25, 20);
+    opts.forEach((n, i) => { const p = ease((t - s - .35 - i * .25) / .25); n.style.opacity = p; n.style.transform = `translateX(${(1 - p) * -60}px)`; });
+    if (reveal) { const on = t > s + 1.2; opts.forEach((n, i) => { n.classList.toggle('win', on && i === 0); n.classList.toggle('lose', on && i > 0); if (on && i === 0) n.style.transform = `scale(${1 + 0.05 * clamp(1 - (t - s - 1.2) / .3)})`; }); }
+  };
+}
+// 1. hook: the road, blurred
+scene(0, 2.6, { photo: 'expressway-static-billboards', zoom: [1.45, 1.3], blur: [16, 11], dark: .45,
+  lines: [['Only real', .05, 220], ['Dhaka drivers', .3, 220], ['know this', .6, 220], ['road<span class="red">.</span>', .85, 260, 'red']] });
+// 2. the question: photo sharpens, options, 3-second countdown
+(() => { const sc = scene(2.6, 8.4, { photo: 'expressway-static-billboards', zoom: [1.3, 1.08], blur: [11, 0], dark: .3 });
+  const qz = quiz(sc.root, 2.6, false), cd = countdown(sc.root, 5.2, 3, 430); const u = sc.upd; sc.upd = t => { u(t); qz(t); cd(t); }; })();
+scene(8.4, 9.8, { color: 'var(--red)', lines: [['Comment', 8.45, 230], ['your guess', 8.65, 200], ['now ↓', 8.85, 230]] });
+// 3. why it matters
+scene(9.8, 13.2, { photo: 'expressway-billboard-close', zoom: [1.06, 1.2], pan: [0, -40], dark: .45, flash: '#fff',
+  lines: [['Up here,', 9.9, 170], ['one billboard', 10.15, 170], ['can be', 10.4, 170], ['125 × 40 ft<span class="red">.</span>', 10.75, 200, 'red']], sub: ['Lit at night. Seen from far down the road.', 11.5] });
+scene(13.2, 15.9, { photo: 'expressway-static-billboards', zoom: [1.05, 1.15], pan: [30, -30], dark: .5, flash: '#fff',
+  lines: [['No clutter<span class="red">.</span>', 13.3, 170], ['Long sight', 13.65, 170], ['lines<span class="red">.</span>', 13.85, 170], ['Eyes on', 14.3, 170, 'red'], ['the road<span class="red">.</span>', 14.5, 170, 'red']] });
+// 4. the answer
+(() => { const sc = scene(15.9, 18.8, { photo: 'expressway-static-billboards', zoom: [1.12, 1.04], dark: .3, flash: 'var(--red)' });
+  const qz = quiz(sc.root, 15.9, true); const u = sc.upd; sc.upd = t => { u(t); qz(t); }; })();
+// 5. call
+cta(18.8, 24.01, { photo: 'expressway-billboard-close', head: 'Want your<br>brand up<br>here<span class="red">?</span>', url: 'dhakaad.com', foot: 'Tag someone who drives<br>this road every day ↓' });
+start(['expressway-static-billboards', 'expressway-billboard-close']);
+</script></body></html>
