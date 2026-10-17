@@ -82,7 +82,7 @@ def upgrade(p):
     s = HEADER_RE.sub(lambda _m: header(), s, count=1)
     s = FOOTER_RE.sub(lambda _m: footer(), s, count=1)
     s = RAIL_RE.sub(lambda _m: call_rail(), s, count=1)
-    s = re.sub(r"\?v=story-3", f"?v={VERSION}", s)
+    s = re.sub(r"\?v=(?:story-3|growth-\d+|cine-\d+)", f"?v={VERSION}", s)
     if "growth.css" not in s:
         s = s.replace("</head>", f'<link rel="stylesheet" href="/dhaka-ad-website/growth.css?v={VERSION}"><script src="/dhaka-ad-website/growth.js?v={VERSION}" defer></script></head>', 1)
     path = rel(p)

@@ -11,7 +11,7 @@ SITE = "https://dhakaad.com"  # canonical domain; the GitHub Pages copy points h
 PHONE = "+8801840860284"
 PHONE_SHOW = "01840 860 284"
 PHONE_INTL = "+880 1840 860 284"
-VERSION = "growth-1"
+VERSION = "cine-1"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 e = html.escape

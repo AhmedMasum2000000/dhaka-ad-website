@@ -12,8 +12,8 @@
   const tone = document.querySelector('.photo-tone');
   const intro = document.querySelector('.portal-intro');
   const scene = document.querySelector('.portal-scene');
-  if (!portal || !stage || !scene) return;
-  const sceneLink = scene.querySelector('a');
+  const hasPortal = !!(portal && stage && scene);
+  const sceneLink = hasPortal && scene.querySelector('a');
   const travellerA = document.querySelector('.traveller-amber');
   const travellerT = document.querySelector('.traveller-teal');
   const progressBar = document.querySelector('.hero-progress span');
@@ -25,7 +25,7 @@
 
   function paint() {
     scheduled = false;
-    if (!root.classList.contains('motion-ready')) return;
+    if (!hasPortal || !root.classList.contains('motion-ready')) return;
     const rect = portal.getBoundingClientRect();
     const p = clamp(-rect.top / Math.max(1, portal.offsetHeight - stage.offsetHeight));
     const open = clamp(p / .76);

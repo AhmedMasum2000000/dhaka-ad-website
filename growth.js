@@ -125,6 +125,10 @@
     }
   }
 
+  // Homepage: the nav sits transparent over the cinematic hero, then turns solid once you scroll.
+  const nav = document.querySelector('.home .nav');
+  if (nav) { const solid = () => nav.classList.toggle('nav-solid', scrollY > 40); solid(); addEventListener('scroll', solid, { passive: true }); }
+
   // Callback form: timestamp lets contact.php drop instant bot posts.
   document.querySelectorAll('.callback-form input[name="ts"]').forEach(i => { i.value = Math.floor(Date.now() / 1000); });
 })();

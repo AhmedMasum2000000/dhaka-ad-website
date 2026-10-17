@@ -105,22 +105,17 @@ FAQ_GROUPS = [
 
 
 def hero():
-    return f'''<section class="portal" id="home" aria-label="Dhaka AD outdoor advertising">
-<div class="portal-stage">
-{img("/assets/outdoor/dhaka-city-user-hero.webp", "Dhaka street intersection with LED billboards and city traffic", cls="portal-photo", lazy=False, priority=True)}
-<div class="photo-tone" aria-hidden="true"></div><div class="photo-veil" aria-hidden="true"></div>
-<div class="shutter shutter-left" aria-hidden="true"><span class="panel-grid"></span></div><div class="shutter shutter-right" aria-hidden="true"><span class="panel-grid"></span></div>
-<div class="hero-question"><p class="eyebrow">360° OUTDOOR ADVERTISING AGENCY IN DHAKA, BANGLADESH</p>
-<h1>How many customers passed your business today <em>without ever seeing your name?</em></h1>
-<p class="question-lede">Billboards, LED screens, metro, airport, events and print. Planned, booked and proved by one team, on one call.</p></div>
-<div class="portal-top micro"><span><i class="dot amber"></i> {len(SITES)} billboards · 56 LED screens · 10 cities</span><span class="hero-edition">DHAKA, BANGLADESH <span class="local-time"></span></span></div>
-<div class="portal-title" aria-hidden="true"><span class="title-left">DHAKA</span><span class="title-right">AD<span class="title-period">.</span></span></div>
-<div class="portal-intro"><div>{call_button("Call " + PHONE_SHOW + " for a free shortlist", "hero-call")}<p class="hero-call-note">Free shortlist · This week's rates · No obligation</p></div><a class="text-link" href="#problem">Why most ads go unseen <span>↓</span></a></div>
-<div class="portal-scene" aria-hidden="true"><p class="micro">THE RIGHT ROAD. THE RIGHT SIDE. THE RIGHT SIZE.</p><h2>BE THE NAME<br>THEY REMEMBER.</h2><a class="text-link" href="tel:{PHONE}" tabindex="-1" data-call>Call {PHONE_SHOW} <span>↗</span></a></div>
-<span class="traveller traveller-amber" aria-hidden="true"></span><span class="traveller traveller-teal" aria-hidden="true"></span>
-<div class="portal-bottom"><a class="scroll-cue" href="#problem"><span class="scroll-icon" aria-hidden="true">↓</span><span class="micro">SCROLL. SEE WHERE YOU COULD BE.</span></a><span class="micro portal-caption">STRATEGY → PLACEMENT → PROOF<br><span>Dhaka, Bangladesh · Field photography</span></span><span class="micro story-cue">ONE CALL. EVERY FORMAT.</span></div>
-<div class="hero-progress" aria-hidden="true"><span></span></div>
-</div></section>'''
+    wide, small, tall = "/assets/hero/dhaka-cinematic-2400.webp", "/assets/hero/dhaka-cinematic-1200.webp", "/assets/hero/dhaka-cinematic-portrait.webp"
+    return f'''<section class="cine" id="home" aria-label="Dhaka AD outdoor advertising">
+<picture class="cine-media"><source media="(max-width:760px)" srcset="{url(tall)}"><img class="cine-photo" src="{url(wide)}" srcset="{url(small)} 1200w, {url(wide)} 2400w" sizes="100vw" width="2400" height="1350" alt="Gulshan 1 intersection in Dhaka, lined with LED billboards" fetchpriority="high"></picture>
+<div class="cine-grade" aria-hidden="true"></div><div class="cine-grain" aria-hidden="true"></div>
+<div class="cine-copy">
+<p class="cine-kicker">Chapter 01 · Be seen</p>
+<h1 class="cine-title"><span class="cine-line">Make every street in</span> <span class="cine-line">Dhaka remember your</span> <em class="cine-word">name.</em></h1>
+<div class="cine-foot"><p>360° outdoor advertising in Dhaka, Bangladesh: billboards, LED screens, metro, airport, events and print. One team, one call.</p>{call_button("Call " + PHONE_SHOW + " for a free shortlist", "cine-call")}</div>
+</div>
+<a class="cine-scroll" href="#problem" aria-label="Scroll to the next section"><span></span></a>
+</section>'''
 
 
 def problem():
@@ -270,11 +265,13 @@ def build():
     all_faqs = [(q, a) for _, items in FAQ_GROUPS for q, a, _l in items]
     graph = [{"@type": "WebSite", "@id": abs_url("/#website"), "name": "Dhaka AD", "url": abs_url("/"), "inLanguage": "en-GB", "publisher": {"@id": abs_url("/#organization")}},
              {"@type": "WebPage", "@id": abs_url("/#page"), "url": abs_url("/"), "name": title, "description": desc, "isPartOf": {"@id": abs_url("/#website")}, "about": {"@id": abs_url("/#organization")},
-              "primaryImageOfPage": {"@type": "ImageObject", "url": abs_url("/assets/outdoor/dhaka-city-user-hero.webp")}, "dateModified": "2026-10-16"},
+              "primaryImageOfPage": {"@type": "ImageObject", "url": abs_url("/assets/hero/dhaka-cinematic-2400.webp")}, "dateModified": "2026-10-16"},
              {"@type": "OfferCatalog", "name": "Outdoor advertising services in Bangladesh", "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": t, "url": abs_url(p), "provider": {"@id": abs_url("/#organization")}}} for p, _i, t, _d in FORMATS]},
              faq_schema(all_faqs)]
-    preload = f'<link rel="preload" href="{BASE}/assets/syne-800.ttf" as="font" type="font/ttf" crossorigin><link rel="preload" href="{BASE}/assets/outdoor/dhaka-city-user-hero.webp" as="image">'
-    html = (head(title, desc, path, "/assets/outdoor/dhaka-city-user-hero.webp", graph, preload).replace(f'<script src="{BASE}/content.js', f'<script src="{BASE}/app.js?v=growth-1" defer></script><script src="{BASE}/content.js')
+    preload = (f'<link rel="preload" href="{BASE}/assets/anton-400.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="{BASE}/assets/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>'
+               f'<link rel="preload" as="image" href="{BASE}/assets/hero/dhaka-cinematic-2400.webp" imagesrcset="{BASE}/assets/hero/dhaka-cinematic-1200.webp 1200w, {BASE}/assets/hero/dhaka-cinematic-2400.webp 2400w" imagesizes="100vw" media="(min-width:761px)">'
+               f'<link rel="preload" as="image" href="{BASE}/assets/hero/dhaka-cinematic-portrait.webp" media="(max-width:760px)">')
+    html = (head(title, desc, path, "/assets/outdoor/dhaka-city-user-hero.webp", graph, preload).replace(f'<script src="{BASE}/content.js', f'<script src="{BASE}/app.js?v=cine-1" defer></script><script src="{BASE}/content.js')
             + '<body class="home">' + header() + '<main id="main">' + hero() + problem() + stats() + bab() + finder() + formats() + deck() + proof() + process() + ratecard() + guides() + faq() + close()
             + "</main>" + footer() + call_rail()
             + '<div class="call-nudge" role="dialog" aria-live="polite" aria-label="Talk to a planner" hidden><button class="nudge-close" aria-label="Dismiss">×</button><p class="micro amber-text">YOU\'RE CLEARLY PLANNING SOMETHING</p>'
