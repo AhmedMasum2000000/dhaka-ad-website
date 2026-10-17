@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Event reel: empty field to show night</title>
+<link rel="stylesheet" href="../reel-kit.css">
+<style>.tagline{top:1480px}</style></head>
+<body><div id="stage"><div id="bar"></div><div id="mark">DHAKA AD<span>.</span></div><div class="flash" id="flash"></div></div>
+<script>window.T = 25;</script>
+<script src="../reel-kit.js"></script>
+<script>
+// 1. hook (daytime, nothing built yet)
+scene(0, 2.4, { photo: 'stage-led-truss-build', zoom: [1.16, 1.06], dark: .55,
+  lines: [['Every show', .05, 210], ['night starts', .3, 210], ['as an empty', .55, 210], ['field<span class="red">.</span>', .8, 260, 'red']] });
+// 2. the build, one cut per beat
+[['event-led-wall-build', 'LED wall<span class="red">.</span>', 2.4, 3.2],
+ ['stage-lighting-rig', 'Lights<span class="red">.</span>', 3.2, 4.0],
+ ['broadcast-camera-stage', 'Cameras<span class="red">.</span>', 4.0, 4.8],
+ ['event-control-room', 'Control<span class="red">.</span>', 4.8, 5.6]].forEach(([p, w, s, e]) =>
+  scene(s, e, { photo: p, zoom: [1.12, 1.02], dark: .35, flash: '#fff', top: '1300px', lines: [[w, s + .02, 230]] }));
+// 3. the pause before the drop
+scene(5.6, 7.0, { lines: [['Then', 5.75, 230], ['the lights', 6.0, 200], ['go down…', 6.25, 200, 'red']] });
+// 4. show night, cut on the beat
+scene(7.0, 8.6, { photo: 'concert-stage-crowd', zoom: [1.2, 1.04], dark: .35, flash: 'var(--red)', top: '1250px',
+  lines: [['Show', 7.02, 260], ['night<span class="red">.</span>', 7.2, 260]] });
+[['dj-stage-led-crowd', 'Concerts', 8.6, 9.4], ['new-year-stage-led', 'New Year shows', 9.4, 10.2],
+ ['stage-led-wall-live', 'Live bands', 10.2, 11.0], ['waterfront-stage-night', 'Poolside nights', 11.0, 11.8],
+ ['event-dance-floor-lights', 'Dance floors', 11.8, 12.8]].forEach(([p, w, s, e]) => {
+  const sc = scene(s, e, { photo: p, zoom: [1.1, 1.0], dark: .3, flash: '#fff' });
+  const tg = el('div', 'tagline', `<span style="background:var(--red);color:#fff;padding:12px 22px">${w}</span>`, sc.root);
+  const u = sc.upd; sc.upd = t => { u(t); rise(tg, t, s + .05, .2, 20); };
+});
+// 5. the insight
+scene(12.8, 16.4, { photo: 'concert-stage-crowd', zoom: [1.05, 1.15], dark: .72,
+  lines: [['Your guests', 12.9, 150], ['forget the', 13.15, 150], ['speeches<span class="red">.</span>', 13.4, 150], ['They remember', 14.5, 120, 'red'], ['how the night felt<span class="red">.</span>', 14.75, 120, 'red']] });
+// 6. what we bring
+scene(16.4, 19.0, { photo: 'stage-red-lights', zoom: [1.04, 1.12], dark: .6, flash: '#fff',
+  lines: [['Stage<span class="red">.</span>', 16.5, 150], ['LED walls<span class="red">.</span>', 16.75, 150], ['Lights<span class="red">.</span>', 17.0, 150], ['Sound<span class="red">.</span>', 17.25, 150], ['One team<span class="red">.</span>', 17.7, 150, 'red']] });
+// 7. call
+cta(19.0, 25.01, { photo: 'new-year-stage-led', head: 'Planning<br>an event<span class="red">?</span>', url: 'dhakaad.com', foot: 'Build, lights or crowd?<br>Tell us in the comments ↓' });
+start(['stage-led-truss-build', 'event-led-wall-build', 'stage-lighting-rig', 'broadcast-camera-stage', 'event-control-room', 'concert-stage-crowd',
+  'dj-stage-led-crowd', 'new-year-stage-led', 'stage-led-wall-live', 'waterfront-stage-night', 'event-dance-floor-lights', 'stage-red-lights']);
+</script></body></html>

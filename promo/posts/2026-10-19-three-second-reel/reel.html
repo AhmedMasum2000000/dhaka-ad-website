@@ -1,0 +1,153 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>3-second billboard test</title>
+<style>
+@font-face{font-family:Syne;src:url('../../../assets/syne-800.ttf');font-weight:800}
+@font-face{font-family:Sora;src:url('../../../assets/sora-400.ttf');font-weight:400}
+@font-face{font-family:Sora;src:url('../../../assets/sora-600.ttf');font-weight:600}
+:root{--bg:#0a0c0e;--ink:#ede7dc;--red:#ff3131}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Sora,sans-serif}
+.scene{position:absolute;inset:0;display:none;overflow:hidden}
+.road{position:absolute;inset:-6%;background:url('../../img/traffic-approach-led-tower.jpg') center/cover;filter:blur(7px) brightness(.42) saturate(.8)}
+.block{position:absolute;left:90px;right:90px;top:50%;transform:translateY(-50%)}
+.line{display:block;width:max-content;font-family:Syne;font-weight:800;line-height:1;letter-spacing:-.02em;text-transform:uppercase;white-space:nowrap;transform-origin:0 60%;opacity:0;text-shadow:0 6px 34px rgba(0,0,0,.5)}
+.red{color:var(--red)}
+.sub{font-family:Sora;font-size:46px;line-height:1.35;margin-top:36px;opacity:0}
+#bar{position:absolute;left:0;top:0;height:10px;background:var(--red);z-index:30}
+#mark{position:absolute;left:90px;top:250px;font-family:Syne;font-weight:800;font-size:40px;letter-spacing:-.03em;z-index:25}
+#mark span{color:var(--red)}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:20}
+/* the billboard */
+.board{position:absolute;left:60px;width:960px;height:560px;top:640px;transform:perspective(1600px) rotateY(-9deg) rotateX(3deg);box-shadow:0 40px 90px rgba(0,0,0,.6);border:14px solid #20262b;border-radius:6px;overflow:hidden}
+.post{position:absolute;left:470px;width:46px;top:1180px;height:760px;background:linear-gradient(90deg,#1a1f23,#2b3237,#1a1f23)}
+.tag{position:absolute;right:16px;bottom:12px;font:600 18px Sora;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,0,0,.55);background:rgba(255,255,255,.55);padding:4px 10px;border-radius:4px}
+/* cluttered example ad */
+.messy{background:#ffe14d;color:#1b3a8a;padding:22px 26px;font-family:Sora}
+.messy .n{font:800 52px Syne;color:#d4141c;letter-spacing:-.02em;line-height:1}
+.messy .s{font:600 20px Sora;color:#2a7a2a;margin:4px 0 10px}
+.messy p{font-size:21px;line-height:1.28;margin:5px 0}
+.messy .big{font:800 30px Syne;color:#7b1fa2;line-height:1.1;margin:8px 0}
+.messy .deal{position:absolute;right:150px;top:180px;width:92px;height:92px;border-radius:50%;background:#ff8a00;color:#fff7c2;font:800 17px Syne;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.05;transform:rotate(-14deg)}
+.messy .foot{font-size:17px;color:#444}
+/* clean example ad */
+.clean{background:#d4141c;color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 60px}
+.clean .o{font:800 150px Syne;line-height:.92;letter-spacing:-.03em}
+.clean .o2{font:800 92px Syne;line-height:1;letter-spacing:-.02em;color:#ffe14d}
+.clean .w{font:600 40px Sora;margin-top:26px}
+/* countdown */
+.timer{position:absolute;left:50%;top:330px;width:220px;height:220px;margin-left:-110px}
+.timer svg{position:absolute;inset:0}
+.timer b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 120px Syne;color:var(--ink)}
+.hl{position:absolute;border:8px solid var(--red);border-radius:50%;opacity:0}
+.pill{display:inline-flex;align-items:center;gap:20px;background:var(--red);color:#fff;font-family:Sora;font-weight:600;font-size:52px;padding:32px 52px;border-radius:999px}
+.cta{position:absolute;left:90px;right:90px;top:430px;bottom:430px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.cta > *{opacity:0}
+.small{font-family:Sora;font-size:36px;line-height:1.4}
+.url{font-family:Syne;font-weight:800;font-size:66px;letter-spacing:-.02em;margin-top:36px}
+</style></head>
+<body><div id="stage"><div id="bar"></div><div id="mark">DHAKA AD<span>.</span></div><div class="flash" id="flash"></div></div>
+<script>
+const W = 1080, H = 1920, T = 25;
+const stage = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = p => 1 - Math.pow(1 - clamp(p), 3);
+const back = p => { p = clamp(p); const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const scenes = [];
+function el(tag, cls, html, parent) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; (parent || stage).appendChild(e); return e; }
+function fit(line, max) { line.style.fontSize = max + 'px'; const room = W - 180; if (line.offsetWidth > room) line.style.fontSize = Math.floor(max * room / line.offsetWidth) + 'px'; }
+
+function scene(s, e, o) {
+  const root = el('div', 'scene');
+  root.style.background = o.color || 'var(--bg)';
+  if (o.road) el('div', 'road', null, root);
+  const block = el('div', 'block', null, root);
+  if (o.top) block.style.top = o.top;
+  const lines = (o.lines || []).map(([txt, at, size, cls]) => { const l = el('span', 'line ' + (cls || ''), txt, block); l._at = at; l._size = size; return l; });
+  const sub = o.sub ? el('div', 'sub', o.sub[0], block) : null;
+  stage.insertBefore(root, document.getElementById('flash'));
+  const sc = { s, e, root, flash: o.flash, init() { lines.forEach(l => fit(l, l._size)); },
+    upd(t) {
+      lines.forEach(l => { const p = (t - l._at) / 0.16; l.style.opacity = clamp(p * 1.6); const k = p < 1 ? 1.35 - 0.35 * back(p) : 1; const sh = p > 1 && p < 1.8 ? Math.sin(p * 40) * 6 * (1.8 - p) : 0; l.style.transform = `translateX(${sh}px) scale(${k})`; });
+      if (sub) { const p = ease((t - o.sub[1]) / 0.25); sub.style.opacity = p; sub.style.transform = `translateY(${(1 - p) * 24}px)`; }
+      if (o.upd) o.upd(t, root);
+    } };
+  scenes.push(sc); return sc;
+}
+
+const MESSY = `<div class="n">DHAKA DUMPLINGS CO.</div><div class="s">Since 2026 · Taste the difference · Family owned</div>
+<p>Fresh handmade momos · steamed · fried · tandoori · cheese · chicken · beef · veg · prawn</p>
+<p>Soups · rice bowls · noodles · family platters · party &amp; office orders</p>
+<div class="big">FREE HOME DELIVERY!!</div>
+<p>Gulshan · Banani · Baridhara · Niketan · Mohakhali · Badda</p>
+<p>Open 11am–11pm · 7 days · Dine-in · Takeaway · Catering</p>
+<div class="big" style="color:#d4141c;font-size:26px">BEST MOMOS IN TOWN!* <span style="font:600 16px Sora;color:#444">*according to us</span></div>
+<p>Birthdays · weddings · corporate events · student discount on weekdays</p>
+<p class="foot">Call us · WhatsApp · Like us · Follow us · App coming soon · Hurry, limited time · T&amp;C apply</p>
+<div class="deal">50%<br>OFF</div><div class="tag">Example ad</div>`;
+const CLEAN = `<div class="o">50% OFF</div><div class="o2">MOMOS</div><div class="w">Now open in Banani →</div><div class="tag" style="color:rgba(255,255,255,.75);background:rgba(0,0,0,.25)">Example ad</div>`;
+
+function boardScene(s, e, html, cls, o = {}) {
+  const sc = scene(s, e, { road: 1, flash: o.flash });
+  el('div', 'post', null, sc.root);
+  const b = el('div', 'board ' + cls, html, sc.root);
+  let timer = null, num = null, ring = null;
+  if (o.count) {
+    timer = el('div', 'timer', `<svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="rgba(10,12,14,.6)" stroke="rgba(237,231,220,.18)" stroke-width="12"/><circle class="rg" cx="110" cy="110" r="96" fill="none" stroke="#ff3131" stroke-width="12" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="603" stroke-dashoffset="0"/></svg><b>3</b>`, sc.root);
+    num = timer.querySelector('b'); ring = timer.querySelector('.rg');
+  }
+  const hl = o.highlight ? el('div', 'hl', null, sc.root) : null;
+  sc.upd = t => {
+    const lt = t - s;
+    const z = 1 + 0.025 * lt;
+    b.style.transform = `perspective(1600px) rotateY(-9deg) rotateX(3deg) scale(${z * (o.count ? 1 : 1.02)})`;
+    if (o.count) { const left = Math.max(0, 3 - lt); num.textContent = Math.max(1, Math.ceil(left)); ring.setAttribute('stroke-dashoffset', 603 * (1 - left / 3)); const pulse = 1 + 0.08 * Math.max(0, 1 - ((lt % 1) / .18)); timer.style.transform = `scale(${pulse})`; }
+    if (hl) { const p = ease((lt - .4) / .35), d = 190 * (2 - p); Object.assign(hl.style, { left: (822 - d / 2) + 'px', top: (868 - d / 2) + 'px', width: d + 'px', height: d + 'px', opacity: p }); const deal = b.querySelector('.deal'); deal.style.transform = `rotate(-14deg) scale(${1 + 0.35 * ease((lt - .4) / .35)})`; }
+    if (o.upd) o.upd(t, sc.root);
+  };
+  return sc;
+}
+
+// 1. hook
+scene(0, 2.2, { road: 1, lines: [['You get', .02, 200], ['3 seconds<span class="red">.</span>', .3, 230, 'red']], sub: ['Can you read this billboard?', .75] });
+scene(2.2, 2.8, { color: 'var(--red)', lines: [['Ready?', 2.22, 300]] });
+// 2. the cluttered board, 3 seconds
+boardScene(2.8, 5.8, MESSY, 'messy', { count: 1, flash: '#fff' });
+scene(5.8, 7.6, { flash: 'var(--red)', lines: [['What was', 5.82, 190], ['the offer?', 6.05, 190, 'red']], sub: ['Comment your answer.<br>Answer at the end.', 6.4] });
+scene(7.6, 8.6, { road: 1, lines: [['Now', 7.62, 230], ['this one.', 7.82, 230]] });
+// 3. the clean board, 3 seconds
+boardScene(8.6, 11.6, CLEAN, 'clean', { count: 1, flash: '#fff' });
+scene(11.6, 13.4, { lines: [['Easier?', 11.62, 280, 'red']], sub: ['Same offer.<br>7 words instead of 78.', 12.05] });
+scene(13.4, 15.8, { road: 1, flash: '#fff', lines: [['On a Dhaka road', 13.42, 140], ['drivers get', 13.75, 160], ['about 3 seconds<span class="red">.</span>', 14.05, 160]], sub: ['Design for them.', 14.7] });
+// 4. the answer
+boardScene(15.8, 18.2, MESSY, 'messy', { highlight: 1, flash: 'var(--red)', upd: (t, root) => {} });
+(() => { const sc = scenes.at(-1); const cap = el('div', 'block', '<span class="line" style="opacity:1;font-size:120px">It was</span><span class="line red" style="opacity:1;font-size:118px">50% off.</span><div class="sub" style="opacity:1">Did you catch it?</div>', sc.root); cap.style.top = '1340px'; cap.style.transform = 'none'; const u = sc.upd; sc.upd = t => { u(t); const p = ease((t - 16.1) / .3); cap.style.opacity = p; cap.style.transform = `translateY(${(1 - p) * 30}px)`; }; })();
+// 5. CTA
+const cta = scene(18.2, T + .01, { road: 1, flash: 'var(--red)' });
+(() => {
+  const box = el('div', 'cta', null, cta.root);
+  const a = el('div', 'line', 'We pick the<br>location <span class="red">and</span><br>fix the design<span class="red">.</span>', box); a.style.cssText += ';font-size:100px;white-space:normal;width:auto;line-height:1.02';
+  const c = el('div', 'pill', 'Call 01840 860 284 <span>↗</span>', box); c.style.marginTop = '56px';
+  const d = el('div', 'url', 'dhakaad.com', box);
+  const f = el('div', 'small', 'Tag a friend who would fail this test 👀', box); f.style.marginTop = '40px';
+  const items = [[a, 18.3], [c, 18.8], [d, 19.1], [f, 19.6]];
+  cta.upd2 = cta.upd;
+  cta.upd = t => { cta.upd2(t); items.forEach(([n, at]) => { const p = ease((t - at) / .3); n.style.opacity = p; n.style.transform = `translateY(${(1 - p) * 40}px)`; }); const pulse = t > 19.3 ? 1 + 0.035 * Math.sin((t - 19.3) * 7) : 1; c.style.transform += ` scale(${pulse})`; };
+})();
+
+const bar = document.getElementById('bar'), flash = document.getElementById('flash');
+function seek(t) {
+  let active = null;
+  scenes.forEach(sc => { const on = t >= sc.s && t < sc.e; sc.root.style.display = on ? 'block' : 'none'; if (on) { sc.upd(t); active = sc; } });
+  bar.style.width = (W * t / T) + 'px';
+  const f = active && active.flash ? clamp(1 - (t - active.s) / .12) : 0;
+  flash.style.background = active && active.flash || 'transparent'; flash.style.opacity = f * .55;
+}
+window.seek = seek; window.DURATION = T;
+window.ready = (async () => {
+  await document.fonts.ready;
+  await new Promise(r => { const i = new Image(); i.onload = i.onerror = r; i.src = '../../img/traffic-approach-led-tower.jpg'; });
+  scenes.forEach(sc => { sc.root.style.display = 'block'; sc.init(); sc.root.style.display = 'none'; });
+  seek(0); return true;
+})();
+</script></body></html>

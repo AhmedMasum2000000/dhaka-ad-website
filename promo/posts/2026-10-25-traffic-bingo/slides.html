@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Dhaka traffic bingo</title><link rel="stylesheet" href="../slides.css">
+<style>
+.title{position:absolute;left:70px;right:70px;top:130px;z-index:3}
+.title h1{font-size:86px;line-height:.98;white-space:nowrap}
+.title p{font-size:34px;margin-top:22px;color:var(--ink)}
+.grid{position:absolute;left:70px;right:70px;top:440px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;z-index:3}
+.c{height:132px;border:3px solid rgba(237,231,220,.28);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;font-weight:600;font-size:27px;line-height:1.15;background:rgba(237,231,220,.04)}
+.c.free{flex-direction:column;background:var(--red);border-color:var(--red);color:#fff;font-family:Syne;font-weight:800;font-size:26px;line-height:1.05}
+.c.free small{display:block;font:600 19px Sora;margin-top:6px;opacity:.9}
+.foot{position:absolute;left:70px;right:70px;bottom:44px;z-index:3;display:flex;justify-content:space-between;align-items:flex-end}
+.foot .l{font-size:25px;line-height:1.4;color:var(--soft);white-space:nowrap}
+.foot .l b{color:var(--ink);font-weight:600}
+.foot .r{font-family:Syne;font-weight:800;font-size:32px;text-align:right;white-space:nowrap}
+</style></head><body>
+<section class="slide">
+  <div class="top" style="left:70px;right:70px;top:56px"><div class="mark">DHAKA AD<span>.</span></div><div class="count">SCREENSHOT · MARK · SHARE</div></div>
+  <div class="title"><h1>Dhaka Traffic<br>Bingo<span class="red">.</span></h1><p>Mark every spot you got stuck at this week. Comment your score ↓</p></div>
+  <div class="grid" id="g"></div>
+  <div class="foot"><div class="l">Stuck at a signal? So are your customers.<br><b>Put your brand where Dhaka waits.</b></div><div class="r">01840 860 284<br><span class="red" style="font-size:30px">dhakaad.com</span></div></div>
+  <div class="bar" style="width:1080px"></div>
+</section>
+<script>
+const spots = ['Farmgate', 'Bijoy Sarani', 'Shahbagh', 'Karwan Bazar', 'Mohakhali', 'Banani 11', 'Gulshan 1', 'Gulshan 2', 'Badda', 'Rampura', 'Malibagh', 'Moghbazar',
+  'Kakrail', 'Motijheel', 'Gulistan', 'Jatrabari', 'Science Lab', 'New Market', 'Dhanmondi 27', 'Mirpur 10', 'Agargaon', 'Uttara', 'Airport Road', 'Kuril'];
+const g = document.getElementById('g');
+spots.splice(12, 0, null);
+spots.forEach(s => { const c = document.createElement('div'); c.className = 'c' + (s ? '' : ' free'); if (s) c.textContent = s; else c.innerHTML = 'FREE<small>stuck anyway</small>'; g.appendChild(c); });
+</script>
+</body></html>
