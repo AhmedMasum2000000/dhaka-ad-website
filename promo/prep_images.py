@@ -1,6 +1,6 @@
 """Crop brand photos to 9:16 for the Instagram promo (EXIF dropped on save)."""
 import os, sys
-from PIL import Image, ImageOps
+from PIL import Image, ImageFilter, ImageOps, ImageStat
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DRIVE = sys.argv[1] if len(sys.argv) > 1 else ""
 OUT = os.path.join(ROOT, "promo", "img")
@@ -14,6 +14,8 @@ PICKS = {
     "concert-stage-crowd": .5, "opening-day-crowd": .5, "large-format-printing": .5, "police-plaza-led-night": .5,
     "outdoor/metro-train-interior": .5,
 }
+# Third-party "call for ad" phone numbers painted out, as (left, top, right, bottom) fractions of the source photo
+REDACT = {"expressway-static-billboards": [(.385, .362, .445, .398)]}
 FOCUS = dict(PICKS)
 FOCUS.update({k: float(v) for k, v in (a.split("=") for a in sys.argv[2:])})
 
@@ -26,6 +28,13 @@ def source(name):
 os.makedirs(OUT, exist_ok=True)
 for name, fx in FOCUS.items():
     im = ImageOps.exif_transpose(Image.open(source(name))).convert("RGB")
+    for fl, ft, fr, fb in REDACT.get(name, []):
+        box = tuple(round(v) for v in (fl * im.width, ft * im.height, fr * im.width, fb * im.height))
+        pad = round(im.width * .01)
+        ring = im.crop((box[0], box[3], box[2], box[3] + 2 * pad))  # the board just below the sign
+        im.paste(tuple(round(c) for c in ImageStat.Stat(ring).median), box)
+        soft = (box[0] - pad, box[1], box[2] + pad, box[3] + pad)
+        im.paste(im.crop(soft).filter(ImageFilter.GaussianBlur(pad / 2)), soft[:2])
     s = max(W / im.width, H / im.height)
     im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
     x = round((im.width - W) * fx); y = (im.height - H) // 2
